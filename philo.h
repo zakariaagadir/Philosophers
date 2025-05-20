@@ -28,6 +28,7 @@ typedef struct s_info{
 typedef struct s_philo{
     int             id;
     int             meals_eaten;
+    int             number_of_eate;
     long long       last_meal_time;
     pthread_t       thread;
     pthread_mutex_t *left_fork;

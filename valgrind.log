@@ -1,0 +1,20 @@
+==547946== Memcheck, a memory error detector
+==547946== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==547946== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==547946== Command: ./a.out 4 800 200 200 1
+==547946== Parent PID: 547240
+==547946== 
+==547946== 
+==547946== FILE DESCRIPTORS: 4 open (3 std) at exit.
+==547946== Open file descriptor 3: /home/zmounji/Desktop/philo/valgrind.log
+==547946==    <inherited from parent>
+==547946== 
+==547946== 
+==547946== HEAP SUMMARY:
+==547946==     in use at exit: 0 bytes in 0 blocks
+==547946==   total heap usage: 8 allocs, 8 frees, 2,768 bytes allocated
+==547946== 
+==547946== All heap blocks were freed -- no leaks are possible
+==547946== 
+==547946== For lists of detected and suppressed errors, rerun with: -s
+==547946== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

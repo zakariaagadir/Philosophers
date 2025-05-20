@@ -54,11 +54,11 @@ void  parcing(int argc, char **argv, t_info *infos)
 {
   int i;
   int data[5];
-  int philo;
-  int time_to_die;
-  int time_to_eat;
-  int time_to_sleep;
-  int number_of_eat;
+//   int philo;
+//   int time_to_die;
+//   int time_to_eat;
+//   int time_to_sleep;
+//   int number_of_eat;
 
   if (argc > 6 || argc < 5)
     exit(1);
@@ -76,6 +76,13 @@ void  parcing(int argc, char **argv, t_info *infos)
   infos->time_to_die = data[1];
   infos->time_to_eat = data[2];
   infos->time_to_sleep = data[3];
+
+  if(infos->philo <= 1)
+  {
+    if(infos->philo == 1)
+        printf("%lld %d died\n", timestamp_ms(), 1);
+    exit (1);
+  }
 }
 
 
@@ -99,16 +106,17 @@ void *monitor(void *arg)
             pthread_mutex_unlock(&info->stop_mutex);
 
             long now = timestamp_ms();
+            pthread_mutex_lock(&info->stop_mutex);
             if (now - philos[i].last_meal_time >= info->time_to_die)
             {
-                pthread_mutex_lock(&info->stop_mutex);
                 info->stop = 1;
                 pthread_mutex_unlock(&info->stop_mutex);
                 printf("%lld %d died\n", timestamp_ms(), philos[i].id);
                 return NULL;
             }
+            pthread_mutex_unlock(&info->stop_mutex);
             i++;
-            usleep(1000); // check often
+            usleep(50);
         }
     }
 }
@@ -126,33 +134,40 @@ void *philo_routine(void *arg)
             pthread_mutex_unlock(&philo->info->stop_mutex);
             break;
         }
+        
         pthread_mutex_unlock(&philo->info->stop_mutex);
-
         printf("%lld %d is thinking\n", timestamp_ms(), philo->id);
+        usleep(philo->info->time_to_die * 50);
 
         pthread_mutex_lock(philo->left_fork);
         pthread_mutex_lock(philo->right_fork);
 
         pthread_mutex_lock(&philo->info->stop_mutex);
-        if (philo->info->stop) // Double-check in case someone died while waiting for forks
+        if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
+        {
+            pthread_mutex_unlock(philo->left_fork);
+            pthread_mutex_unlock(philo->right_fork);
+            pthread_mutex_unlock(&philo->info->stop_mutex);
+            break;
+        }
+        philo->last_meal_time = timestamp_ms();
+        pthread_mutex_unlock(&philo->info->stop_mutex);
+        printf("%lld %d is eating\n", timestamp_ms(), philo->id);
+        usleep(philo->info->time_to_eat * 50);
+        philo->meals_eaten++;
+
+        pthread_mutex_unlock(philo->left_fork);
+        pthread_mutex_unlock(philo->right_fork);
+
+        pthread_mutex_lock(&philo->info->stop_mutex);
+        if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
         {
             pthread_mutex_unlock(&philo->info->stop_mutex);
-            pthread_mutex_unlock(philo->right_fork);
-            pthread_mutex_unlock(philo->left_fork);
             break;
         }
         pthread_mutex_unlock(&philo->info->stop_mutex);
-
-        philo->last_meal_time = timestamp_ms();
-        printf("%lld %d is eating\n", timestamp_ms(), philo->id);
-        usleep(philo->info->time_to_eat * 1000);
-        philo->meals_eaten++;
-
-        pthread_mutex_unlock(philo->right_fork);
-        pthread_mutex_unlock(philo->left_fork);
-
         printf("%lld %d is sleeping\n", timestamp_ms(), philo->id);
-        usleep(philo->info->time_to_sleep * 1000);
+        usleep(philo->info->time_to_sleep * 50);
     }
 
     return NULL;
@@ -178,7 +193,6 @@ int main(int argc, char **argv)
     forks = malloc(sizeof(pthread_mutex_t) * infos.philo);
     if (!forks)
         return 1;
-
     philos = malloc(sizeof(t_philo) * infos.philo);
     if (!philos)
     {
@@ -197,7 +211,7 @@ int main(int argc, char **argv)
     {
         philos[i].id = i + 1;
         philos[i].meals_eaten = 0;
-        philos[i].last_meal_time = timestamp_ms(); // Set start time
+        philos[i].last_meal_time = timestamp_ms();// Set start time
         philos[i].left_fork = &forks[i];
         philos[i].right_fork = &forks[(i + 1) % infos.philo];
         philos[i].info = &infos;
