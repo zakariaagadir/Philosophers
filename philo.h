@@ -15,12 +15,13 @@ void	ft_bzero(void *s, size_t n);
 
 
 typedef struct s_info{
-    int philo;
-    int time_to_die;
-    int time_to_eat;
-    int time_to_sleep;
-    int number_of_eat;
-    int stop;
+    int         philo;
+    int         time_to_die;
+    long long   start;
+    int         time_to_eat;
+    int         time_to_sleep;
+    int         number_of_eat;
+    int         stop;
     pthread_mutex_t stop_mutex;
 }t_info;
 

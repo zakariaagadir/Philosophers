@@ -80,7 +80,7 @@ void  parcing(int argc, char **argv, t_info *infos)
   if(infos->philo <= 1)
   {
     if(infos->philo == 1)
-        printf("%lld %d died\n", timestamp_ms(), 1);
+        printf("%lld %d died\n", 0LL, 1);
     exit (1);
   }
 }
@@ -95,6 +95,13 @@ void *monitor(void *arg)
     while (1)
     {
         i = 0;
+        pthread_mutex_lock(&info->stop_mutex);
+        if (philos[0].meals_eaten == philos[0].info->number_of_eat)
+        {
+            pthread_mutex_unlock(&info->stop_mutex);
+            return NULL;
+        }
+        pthread_mutex_unlock(&info->stop_mutex);
         while (i < info->philo)
         {
             pthread_mutex_lock(&info->stop_mutex);
@@ -110,14 +117,14 @@ void *monitor(void *arg)
             if (now - philos[i].last_meal_time >= info->time_to_die)
             {
                 info->stop = 1;
+                printf("%lld %d died\n", timestamp_ms() - philos->info->start, philos[i].id);
                 pthread_mutex_unlock(&info->stop_mutex);
-                printf("%lld %d died\n", timestamp_ms(), philos[i].id);
                 return NULL;
             }
             pthread_mutex_unlock(&info->stop_mutex);
             i++;
-            usleep(50);
         }
+        usleep(1000);
     }
 }
 
@@ -126,7 +133,7 @@ void *philo_routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
 
-    while (1)
+    while (!philo->info->stop)
     {
         pthread_mutex_lock(&philo->info->stop_mutex);
         if (philo->info->stop)
@@ -136,25 +143,35 @@ void *philo_routine(void *arg)
         }
         
         pthread_mutex_unlock(&philo->info->stop_mutex);
-        printf("%lld %d is thinking\n", timestamp_ms(), philo->id);
-        usleep(philo->info->time_to_die * 50);
-
-        pthread_mutex_lock(philo->left_fork);
-        pthread_mutex_lock(philo->right_fork);
-
+        // printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
+        if (philo->id % 2 == 0)
+        {
+            usleep (50);
+            pthread_mutex_lock(philo->right_fork);
+            pthread_mutex_lock(philo->left_fork);
+        }
+        else
+        {
+            pthread_mutex_lock(philo->left_fork);
+            pthread_mutex_lock(philo->right_fork);
+        }
         pthread_mutex_lock(&philo->info->stop_mutex);
-        if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
+        if (philo->info->stop)// Double-check in case someone died while waiting for forks
         {
             pthread_mutex_unlock(philo->left_fork);
             pthread_mutex_unlock(philo->right_fork);
             pthread_mutex_unlock(&philo->info->stop_mutex);
             break;
         }
+        printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
+
         philo->last_meal_time = timestamp_ms();
+        printf("%lld %d is eating\n", timestamp_ms() - philo->info->start, philo->id);
         pthread_mutex_unlock(&philo->info->stop_mutex);
-        printf("%lld %d is eating\n", timestamp_ms(), philo->id);
-        usleep(philo->info->time_to_eat * 50);
+        usleep(philo->info->time_to_eat * 1000);
+        pthread_mutex_lock(&philo->info->stop_mutex);
         philo->meals_eaten++;
+        pthread_mutex_unlock(&philo->info->stop_mutex);
 
         pthread_mutex_unlock(philo->left_fork);
         pthread_mutex_unlock(philo->right_fork);
@@ -166,8 +183,31 @@ void *philo_routine(void *arg)
             break;
         }
         pthread_mutex_unlock(&philo->info->stop_mutex);
-        printf("%lld %d is sleeping\n", timestamp_ms(), philo->id);
-        usleep(philo->info->time_to_sleep * 50);
+        pthread_mutex_lock(&philo->info->stop_mutex);
+        if (philo->info->stop)// Double-check in case someone died while waiting for forks
+        {
+            pthread_mutex_unlock(&philo->info->stop_mutex);
+            break;
+        }
+        printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start, philo->id);
+        pthread_mutex_unlock(&philo->info->stop_mutex);
+        usleep(philo->info->time_to_sleep * 1000);
+        pthread_mutex_lock(&philo->info->stop_mutex);
+        if (philo->info->stop)// Double-check in case someone died while waiting for forks
+        {
+            pthread_mutex_unlock(&philo->info->stop_mutex);
+            break;
+        }
+        printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
+        pthread_mutex_unlock(&philo->info->stop_mutex);
+        usleep (1000);
+        pthread_mutex_lock(&philo->info->stop_mutex);
+        if (philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
+        {
+            pthread_mutex_unlock(&philo->info->stop_mutex);
+            break;
+        }
+        pthread_mutex_unlock(&philo->info->stop_mutex);
     }
 
     return NULL;
@@ -219,8 +259,10 @@ int main(int argc, char **argv)
     }
 
     i = 0;
+    infos.start = timestamp_ms();
     while (i < infos.philo)
     {
+        philos[i].last_meal_time = infos.start;
         if (pthread_create(&philos[i].thread, NULL, &philo_routine, &philos[i]) != 0)
         {
             perror("Failed to create thread");
@@ -286,3 +328,8 @@ int main(int argc, char **argv)
 
 // int after = read_balance();
 // printf("After: %d\n", after);
+
+// lock
+// if (!stop)
+// printf ()
+// unvloc
