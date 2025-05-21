@@ -114,7 +114,7 @@ void *monitor(void *arg)
 
             long now = timestamp_ms();
             pthread_mutex_lock(&info->stop_mutex);
-            if (now - philos[i].last_meal_time >= info->time_to_die)
+            if (now - philos[i].last_meal_time > info->time_to_die)
             {
                 info->stop = 1;
                 printf("%lld %d died\n", timestamp_ms() - philos->info->start, philos[i].id);
@@ -146,7 +146,7 @@ void *philo_routine(void *arg)
         // printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
         if (philo->id % 2 == 0)
         {
-            usleep (50);
+            usleep (1);
             pthread_mutex_lock(philo->right_fork);
             pthread_mutex_lock(philo->left_fork);
         }
@@ -177,7 +177,7 @@ void *philo_routine(void *arg)
         pthread_mutex_unlock(philo->right_fork);
 
         pthread_mutex_lock(&philo->info->stop_mutex);
-        if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
+        if (philo->info->stop )// Double-check in case someone died while waiting for forks
         {
             pthread_mutex_unlock(&philo->info->stop_mutex);
             break;
