@@ -216,9 +216,10 @@ void *philo_routine(void *arg)
 
 int main(int argc, char **argv)
 {
-    sem_t           *forks;
+    sem_t           **forks;
     t_philo         *philos;
     int             i;
+    char            sem_name;
     t_info          infos;
     pthread_t       monitor_thread;
 
@@ -228,9 +229,9 @@ int main(int argc, char **argv)
 
     // Initialize stop flag and mutex
     infos.stop = 0;
-    pthread_mutex_init(&infos.stop_mutex, NULL);
+    infos.stop_mutex = sem_open("/stop_mutex", O_CREAT | O_EXCL, 0644, 1);
 
-    forks = malloc(sizeof(pthread_mutex_t) * infos.philo);
+    forks = malloc(sizeof(sem_t *) * infos.philo);
     if (!forks)
         return 1;
     philos = malloc(sizeof(t_philo) * infos.philo);
@@ -242,7 +243,8 @@ int main(int argc, char **argv)
 
     while (i < infos.philo)
     {
-        pthread_mutex_init(&forks[i], NULL);
+        sem_name = ft_strjoin("/stop_mutex",i);
+        forks[i] = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 1);
         i++;
     }
 
@@ -263,10 +265,19 @@ int main(int argc, char **argv)
     while (i < infos.philo)
     {
         philos[i].last_meal_time = infos.start;
-        if (pthread_create(&philos[i].thread, NULL, &philo_routine, &philos[i]) != 0)
+        philos[i].thread = fork();
+        if (philos[i].thread < 0)
         {
             perror("Failed to create thread");
             return 1;
+        }
+        if (philos[i].thread == 0)
+        {
+            philo_routine(&philos[i]);
+
+        }
+        if (pthread_create(&philos[i].thread, NULL, &philo_routine, &philos[i]) != 0)
+        {
         }
         i++;
     }

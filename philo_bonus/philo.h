@@ -38,11 +38,14 @@ typedef struct s_philo{
     int             meals_eaten;
     int             number_of_eate;
     long long       last_meal_time;
-    pthread_t       thread;
-    pthread_mutex_t *left_fork;
-    pthread_mutex_t *right_fork;
+    pid_t       thread;
+    sem_t *left_fork;
+    sem_t *right_fork;
     t_info          *info;
 }t_philo;
+
+char	*ft_strjoin(char const *s1, void *s3);
+
 
 
 #endif

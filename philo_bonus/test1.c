@@ -1,51 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/mman.h>    // for mmap
-#include <semaphore.h>   // for sem_t
-#include <fcntl.h>       // for O_CREAT
-#include <sys/wait.h>    // for wait
+#include <semaphore.h>
+#include <fcntl.h>      // For O_CREAT, O_EXCL
+#include <sys/wait.h>
 
-int main()
+#define SEM_NAME 
+#define NUM_PROCESSES 10
+
+int main(void)
 {
-    // Shared integer counter
-    int *counter = mmap(NULL, sizeof(int),
-                        PROT_READ | PROT_WRITE,
-                        MAP_SHARED | MAP_ANONYMOUS,
-                        -1, 0);
-
-    // Shared unnamed semaphore (initial value 1 for mutual exclusion)
-    sem_t *sem = mmap(NULL, sizeof(sem_t),
-                      PROT_READ | PROT_WRITE,
-                      MAP_SHARED | MAP_ANONYMOUS,
-                      -1, 0);
-
-    sem_init(sem, 1, 1);  // 1 = shared between processes
-
-    pid_t pid = fork();
-
-    if (pid < 0)
+    // Create the named semaphore with initial value 1
+    sem_t *forks = sem_open(SEM_NAME, O_CREAT | O_EXCL, 0644, 1);
+    if (forks == SEM_FAILED)
     {
-        perror("fork failed");
+        perror("sem_open");
         exit(1);
     }
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < NUM_PROCESSES; i++)
     {
-        sem_wait(sem); // Lock
-        (*counter)++;
-        printf("Process %d: counter = %d\n", getpid(), *counter);
-        sem_post(sem); // Unlock
-        usleep(100000); // sleep 100ms
+        pid_t pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else if (pid == 0)
+        {
+            // Child process
+            sem_wait(forks);
+            printf("Philosopher %d (PID %d): eating 🍝\n", i + 1, getpid());
+            usleep(500000); // simulate eating
+            printf("Philosopher %d (PID %d): done eating\n", i + 1, getpid());
+            sem_post(forks);
+            exit(0);
+        }
     }
 
-    if (pid > 0) // parent
-    {
+    // Parent waits for all children
+    for (int i = 0; i < NUM_PROCESSES; i++)
         wait(NULL);
-        sem_destroy(sem);
-        munmap(counter, sizeof(int));
-        munmap(sem, sizeof(sem_t));
-    }
+
+    // Cleanup semaphore
+    sem_close(forks);
+    sem_unlink(SEM_NAME);
 
     return 0;
 }

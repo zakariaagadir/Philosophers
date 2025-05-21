@@ -26,7 +26,7 @@ int main()
         (*counter)++;
         printf("Process %d: counter = %d\n", getpid(), *counter);
         sem_post(sem);
-        // usleep(100000);
+        usleep(100000);
     }
 
     if (pid > 0) // parent
