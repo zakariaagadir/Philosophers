@@ -44,7 +44,10 @@ typedef struct s_philo{
     t_info          *info;
 }t_philo;
 
-char	*ft_strjoin(char const *s1, void *s3);
+char	*ft_strjoin(char const *s1, char const *s2);
+int     ft_atoi(const char *str);
+char	*ft_itoa(int n);
+size_t	ft_strlen(const char *s);
 
 
 

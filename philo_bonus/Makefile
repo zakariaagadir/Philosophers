@@ -2,7 +2,7 @@ NAME = philo
 CC = cc
 FLAGS = -Wall -Wextra -Werror -fsanitize=thread
 
-SRC = ft_atoi.c main.c
+SRC = ft_atoi.c main.c ft_itoa.c ft_strjoin.c ft_strlen.c
 OBJ = ${SRC:.c=.o}
 
 all: ${NAME}
