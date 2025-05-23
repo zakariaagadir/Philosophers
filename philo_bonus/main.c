@@ -90,6 +90,7 @@ void *monitor(void *arg)
 {
     t_philo *philos = (t_philo *)arg;
     t_info *info = philos[0].info;
+    int ret;
     int i;
 
     while (1)
@@ -104,8 +105,8 @@ void *monitor(void *arg)
         sem_post(info->stop_mutex);
         while (i < info->philo)
         {
-            sem_wait(info->stop_mutex);
-            if (info->stop)
+            ret = sem_trywait(info->stop_mutex);
+            if (ret == 0)
             {
                 sem_post(info->stop_mutex);
                 return NULL;
@@ -128,86 +129,86 @@ void *monitor(void *arg)
     }
 }
 
-
 void *philo_routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
+    pthread_t monitor;
 
-    while (!philo->info->stop)
+    // Start monitor thread for this philosopher
+    if (pthread_create(&monitor, NULL, monitor_thread, philo) != 0)
     {
-        sem_wait(philo->info->stop_mutex);
-        if (philo->info->stop)
-        {
-            sem_post(philo->info->stop_mutex);
-            break;
-        }
-        
+        perror("Failed to create monitor thread");
+        exit(1);
+    }
+
+    // Run the main philosopher routine
+    routine_thread(philo);
+
+    // Wait for monitor to finish before exiting
+    pthread_join(monitor, NULL);
+    return NULL;
+}
+
+void *routine_thread(void *arg)
+{
+    t_philo *philo = (t_philo *)arg;
+
+    while (1)
+    {
+        if()
         sem_post(philo->info->stop_mutex);
-        // printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
+
         if (philo->id % 2 == 0)
-        {
-            usleep (50);
-            sem_wait(philo->right_fork);
-            sem_wait(philo->left_fork);
-        }
-        else
-        {
-            sem_post(philo->left_fork);
-            sem_post(philo->right_fork);
-        }
-        sem_wait(philo->info->stop_mutex);
-        if (philo->info->stop)// Double-check in case someone died while waiting for forks
-        {
-            sem_post(philo->left_fork);
-            sem_post(philo->right_fork);
-            sem_post(philo->info->stop_mutex);
-            break;
-        }
+            usleep(500); // slight delay for even IDs
+
+        // Take forks
+        sem_wait(philo->left_fork);
+        printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
+        sem_wait(philo->right_fork);
         printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
 
+        // Eat
+        sem_wait(philo->info->stop_mutex);
         philo->last_meal_time = timestamp_ms();
-        printf("%lld %d is eating\n", timestamp_ms() - philo->info->start, philo->id);
+        printf("%lld %d is eating\n", philo->last_meal_time - philo->info->start, philo->id);
         sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_eat * 1000);
+
         sem_wait(philo->info->stop_mutex);
         philo->meals_eaten++;
         sem_post(philo->info->stop_mutex);
 
+        // Release forks
         sem_post(philo->left_fork);
         sem_post(philo->right_fork);
 
-        sem_wait(philo->info->stop_mutex);
-        if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
-        {
-            sem_post(philo->info->stop_mutex);
-            break;
-        }
-        sem_post(philo->info->stop_mutex);
-        sem_wait(philo->info->stop_mutex);
-        if (philo->info->stop)// Double-check in case someone died while waiting for forks
-        {
-            sem_post(philo->info->stop_mutex);
-            break;
-        }
+        // Sleep
         printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start, philo->id);
-        sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_sleep * 1000);
-        sem_wait(philo->info->stop_mutex);
-        if (philo->info->stop)// Double-check in case someone died while waiting for forks
-        {
-            sem_post(philo->info->stop_mutex);
-            break;
-        }
+
+        // Think
         printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
-        sem_post(philo->info->stop_mutex);
-        usleep (1000);
-        sem_wait(philo->info->stop_mutex);
-        if (philo->meals_eaten == philo->info->number_of_eat)// Double-check in case someone died while waiting for forks
+    }
+
+    return NULL;
+}
+
+void *monitor_thread(void *arg)
+{
+    t_philo *philo = (t_philo *)arg;
+
+    while (1)
+    {
+        long long now = timestamp_ms();
+        if (now - philo->last_meal_time > philo->info->time_to_die)
         {
-            sem_post(philo->info->stop_mutex);
-            break;
+            printf("%lld %d died\n", now - philo->info->start, philo->id);
+            exit(1); // Exit this philosopher process
         }
-        sem_post(philo->info->stop_mutex);
+        if (philo->meals_eaten == philo->info->number_of_eat)
+        {
+            exit(1);
+        }
     }
 
     return NULL;
@@ -229,8 +230,8 @@ int main(int argc, char **argv)
     parcing(argc, argv, &infos);
 
     // Initialize stop flag and mutex
-    infos.stop = 0;
-    infos.stop_mutex = sem_open("/stop_mutex", O_CREAT | O_EXCL, 0644, 1);
+    // infos.stop = 0;
+    infos.stop_mutex = sem_open("/stop_mutex", O_CREAT | O_EXCL, 0644, 0);
 
     forks = malloc(sizeof(sem_t *) * infos.philo);
     if (!forks)
@@ -245,7 +246,7 @@ int main(int argc, char **argv)
     while (i < infos.philo)
     {
         tmp = ft_itoa(i);
-        sem_name = ft_strjoin("/stop_mutex",tmp);
+        sem_name = ft_strjoin("/fork_",tmp);
         free (tmp);
         tmp = NULL;
         forks[i] = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 1);
@@ -264,8 +265,20 @@ int main(int argc, char **argv)
         i++;
     }
 
+    monitor_fork = fork();
+    if (monitor_fork < 0)
+    {
+        perror("Failed to create thread");
+        return 1;
+    }
+    if (monitor_fork == 0)
+    {
+        monitor(philos);
+        exit (0);
+    }
     i = 0;
     infos.start = timestamp_ms();
+    sem_wait(infos.stop_mutex);
     while (i < infos.philo)
     {
         philos[i].last_meal_time = infos.start;
@@ -285,24 +298,20 @@ int main(int argc, char **argv)
             i++;
     }
 
-    monitor_fork = fork();
-    if (monitor_fork < 0)
-    {
-        perror("Failed to create thread");
-        return 1;
-    }
-    if (monitor_fork == 0)
-    {
-        monitor(philos);
-        exit (0);
-    }
     // Clean up
+    i = 0;
+    while (i < infos.philo)
+    {
+        waitpid(philos[i].thread, NULL, 0);
+        i++;
+    }
+    waitpid(monitor_fork, NULL, 0);
     i = 0;
     while (i < infos.philo)
     {
         sem_close(forks[i]);
         tmp = ft_itoa(i);
-        sem_name = ft_strjoin("/stop_mutex",tmp);
+        sem_name = ft_strjoin("/fork_",tmp);
         free (tmp);
         tmp = NULL;
         sem_unlink(sem_name);

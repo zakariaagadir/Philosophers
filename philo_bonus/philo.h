@@ -28,7 +28,7 @@ typedef struct s_info{
     int         time_to_eat;
     int         time_to_sleep;
     int         number_of_eat;
-    int         stop;
+    // int         stop;
     sem_t       *stop_mutex;
 }t_info;
 
@@ -48,6 +48,12 @@ char	*ft_strjoin(char const *s1, char const *s2);
 int     ft_atoi(const char *str);
 char	*ft_itoa(int n);
 size_t	ft_strlen(const char *s);
+void    *monitor_thread(void *arg);
+void    *routine_thread(void *arg);
+void    *philo_routine(void *arg);
+void    *monitor(void *arg);
+
+
 
 
 
