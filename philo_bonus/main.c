@@ -1,32 +1,5 @@
 #include "philo.h"
 
-// int balance = 0;
-// pthread_mutex_t mutex;
-
-// void write_balance(int new_balance)
-// {
-//   balance = new_balance;
-// }
-
-// int read_balance()
-// {
-//   return balance;
-// }
-
-// void* deposit(void *amount)
-// {
-//   pthread_mutex_lock(&mutex);
-
-//   int account_balance = read_balance();
-
-//   account_balance += *((int *) amount);
-
-//   write_balance(account_balance);
-
-//   pthread_mutex_unlock(&mutex);
-
-//   return NULL;
-// }
 
 void ft_is_number(char *str)
 {
@@ -54,11 +27,6 @@ void parcing(int argc, char **argv, t_info *infos)
 {
     int i;
     int data[5];
-    //   int philo;
-    //   int time_to_die;
-    //   int time_to_eat;
-    //   int time_to_sleep;
-    //   int number_of_eat;
 
     if (argc > 6 || argc < 5)
         exit(1);
@@ -85,48 +53,6 @@ void parcing(int argc, char **argv, t_info *infos)
     }
 }
 
-void *monitor(void *arg)
-{
-    t_philo *philos = (t_philo *)arg;
-    t_info *info = philos[0].info;
-    int ret;
-    int i;
-
-    while (1)
-    {
-        i = 0;
-        sem_wait(info->stop_mutex);
-        if (philos[0].meals_eaten == philos[0].info->number_of_eat)
-        {
-            sem_post(info->stop_mutex);
-            return NULL;
-        }
-        sem_post(info->stop_mutex);
-        while (i < info->philo)
-        {
-            ret = sem_trywait(info->stop_mutex);
-            if (ret == 0)
-            {
-                sem_post(info->stop_mutex);
-                return NULL;
-            }
-            sem_post(info->stop_mutex);
-
-            long now = timestamp_ms();
-            sem_wait(info->stop_mutex);
-            if (now - philos[i].last_meal_time >= info->time_to_die)
-            {
-                info->stop = 1;
-                printf("%lld %d died\n", timestamp_ms() - philos->info->start, philos[i].id);
-                sem_post(info->stop_mutex);
-                return NULL;
-            }
-            sem_post(info->stop_mutex);
-            i++;
-        }
-        usleep(1000);
-    }
-}
 
 void *philo_routine(void *arg)
 {
@@ -156,28 +82,36 @@ void *routine_thread(void *arg)
     {
         if (philo->id % 2 == 0)
         {
-            usleep(1000);
             sem_wait(philo->right_fork);
             sem_wait(philo->left_fork);
         }
         else
         {
+            usleep(1000);
             sem_wait(philo->left_fork);
             sem_wait(philo->right_fork);
         }
+        sem_wait(philo->info->stop_mutex);
         printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
-
         printf("%lld %d is eating\n", philo->last_meal_time - philo->info->start, philo->id);
+        sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_eat * 1000);
         philo->last_meal_time = timestamp_ms();
+        sem_wait(philo->info->stop_mutex);
         philo->meals_eaten++;
+        sem_post(philo->info->stop_mutex);
         sem_post(philo->left_fork);
         sem_post(philo->right_fork);
 
+        sem_wait(philo->info->stop_mutex);
         printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start, philo->id);
+        sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_sleep * 1000);
 
+        sem_wait(philo->info->stop_mutex);
         printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
+        sem_post(philo->info->stop_mutex);
+
         usleep(1000);
     }
 
@@ -190,16 +124,20 @@ void *monitor_thread(void *arg)
 
     while (1)
     {
+        sem_wait(philo->info->stop_mutex);
         long long now = timestamp_ms();
         if (now - philo->last_meal_time > philo->info->time_to_die)
         {
             printf("%lld %d died\n", now - philo->info->start, philo->id);
             exit(1); // Exit this philosopher process
+            sem_post(philo->info->stop_mutex);
         }
         if (philo->meals_eaten == philo->info->number_of_eat)
         {
             exit(1);
+            sem_post(philo->info->stop_mutex);
         }
+        sem_post(philo->info->stop_mutex);
     }
 
     return NULL;
@@ -219,7 +157,6 @@ int main(int argc, char **argv)
     ft_bzero(&infos, sizeof(t_info));
     parcing(argc, argv, &infos);
 
-    infos.stop_mutex = sem_open("/stop_mutex", O_CREAT | O_EXCL, 0644, 0);
 
     forks = malloc(sizeof(sem_t *) * infos.philo);
     if (!forks)
@@ -230,13 +167,15 @@ int main(int argc, char **argv)
         free(forks);
         return 1;
     }
-
+    sem_unlink("/stop_sem");
+    infos.stop_mutex = sem_open("/stop_sem", O_CREAT | O_EXCL, 0644, 1);
     while (i < infos.philo)
     {
         tmp = ft_itoa(i);
         sem_name = ft_strjoin("/fork_", tmp);
         free(tmp);
         tmp = NULL;
+        sem_unlink(sem_name);
         forks[i] = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 1);
         i++;
     }
@@ -255,7 +194,6 @@ int main(int argc, char **argv)
 
     i = 0;
     infos.start = timestamp_ms();
-    sem_wait(infos.stop_mutex);
     while (i < infos.philo)
     {
         philos[i].last_meal_time = infos.start;
@@ -283,6 +221,7 @@ int main(int argc, char **argv)
         while (i < infos.philo)
             waitpid(philos[i++].thread, NULL, 0);
     }
+    sem_post(infos.stop_mutex);
     i = 0;
     while (i < infos.philo)
     {
@@ -297,37 +236,9 @@ int main(int argc, char **argv)
         i++;
     }
     sem_close(infos.stop_mutex);
+    sem_unlink("/stop_sem");
     free(philos);
-    i = 0;
-    while (i < infos.philo)
-        free(forks[i++]);
     free(forks);
     return 0;
 }
 
-// int before = read_balance();
-// printf("Before: %d\n", before);
-
-// pthread_t thread1;
-// pthread_t thread2;
-
-// pthread_mutex_init(&mutex, NULL);
-
-// int deposit1 = 300;
-// int deposit2 = 200;
-
-// pthread_create(&thread1, NULL, deposit, (void*) &deposit1);
-// pthread_create(&thread2, NULL, deposit, (void*) &deposit2);
-
-// pthread_join(thread1, NULL);
-// pthread_join(thread2, NULL);
-
-// pthread_mutex_destroy(&mutex);
-
-// int after = read_balance();
-// printf("After: %d\n", after);
-
-// lock
-// if (!stop)
-// printf ()
-// unvloc
