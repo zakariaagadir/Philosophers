@@ -114,7 +114,7 @@ void *monitor(void *arg)
 
             long now = timestamp_ms();
             pthread_mutex_lock(&info->stop_mutex);
-            if (now - philos[i].last_meal_time > info->time_to_die)
+            if (now - philos[i].last_meal_time >= info->time_to_die)
             {
                 info->stop = 1;
                 printf("%lld %d died\n", timestamp_ms() - philos->info->start, philos[i].id);
