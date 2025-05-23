@@ -28,19 +28,19 @@
 //   return NULL;
 // }
 
-void      ft_is_number(char *str)
+void ft_is_number(char *str)
 {
-  int i;
-  i = 0;
-  while(str[i])
-  {
-    if (!ft_isdigit(str[i]))
+    int i;
+    i = 0;
+    while (str[i])
     {
-      write(2, "enter numbers\n", 15);
-      exit (1);
+        if (!ft_isdigit(str[i]))
+        {
+            write(2, "enter numbers\n", 15);
+            exit(1);
+        }
+        i++;
     }
-    i++;
-  }
 }
 
 long long timestamp_ms(void)
@@ -50,41 +50,40 @@ long long timestamp_ms(void)
     return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000));
 }
 
-void  parcing(int argc, char **argv, t_info *infos)
+void parcing(int argc, char **argv, t_info *infos)
 {
-  int i;
-  int data[5];
-//   int philo;
-//   int time_to_die;
-//   int time_to_eat;
-//   int time_to_sleep;
-//   int number_of_eat;
+    int i;
+    int data[5];
+    //   int philo;
+    //   int time_to_die;
+    //   int time_to_eat;
+    //   int time_to_sleep;
+    //   int number_of_eat;
 
-  if (argc > 6 || argc < 5)
-    exit(1);
-  i = 1;
-  while(i < (argc))
-  {
-    ft_is_number(argv[i]);
-    data[i-1]= ft_atoi(argv[i]);
-    i++;
-  }
-  if(argc == 5)
-    data[4] = -1;
-  infos->number_of_eat = data[4];
-  infos->philo = data[0];
-  infos->time_to_die = data[1];
-  infos->time_to_eat = data[2];
-  infos->time_to_sleep = data[3];
+    if (argc > 6 || argc < 5)
+        exit(1);
+    i = 1;
+    while (i < (argc))
+    {
+        ft_is_number(argv[i]);
+        data[i - 1] = ft_atoi(argv[i]);
+        i++;
+    }
+    if (argc == 5)
+        data[4] = -1;
+    infos->number_of_eat = data[4];
+    infos->philo = data[0];
+    infos->time_to_die = data[1];
+    infos->time_to_eat = data[2];
+    infos->time_to_sleep = data[3];
 
-  if(infos->philo <= 1)
-  {
-    if(infos->philo == 1)
-        printf("%lld %d died\n", 0LL, 1);
-    exit (1);
-  }
+    if (infos->philo <= 1)
+    {
+        if (infos->philo == 1)
+            printf("%lld %d died\n", 0LL, 1);
+        exit(1);
+    }
 }
-
 
 void *monitor(void *arg)
 {
@@ -155,39 +154,31 @@ void *routine_thread(void *arg)
 
     while (1)
     {
-        if()
-        sem_post(philo->info->stop_mutex);
-
         if (philo->id % 2 == 0)
-            usleep(500); // slight delay for even IDs
-
-        // Take forks
-        sem_wait(philo->left_fork);
+        {
+            usleep(1000);
+            sem_wait(philo->right_fork);
+            sem_wait(philo->left_fork);
+        }
+        else
+        {
+            sem_wait(philo->left_fork);
+            sem_wait(philo->right_fork);
+        }
         printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
-        sem_wait(philo->right_fork);
-        printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
 
-        // Eat
-        sem_wait(philo->info->stop_mutex);
-        philo->last_meal_time = timestamp_ms();
         printf("%lld %d is eating\n", philo->last_meal_time - philo->info->start, philo->id);
-        sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_eat * 1000);
-
-        sem_wait(philo->info->stop_mutex);
+        philo->last_meal_time = timestamp_ms();
         philo->meals_eaten++;
-        sem_post(philo->info->stop_mutex);
-
-        // Release forks
         sem_post(philo->left_fork);
         sem_post(philo->right_fork);
 
-        // Sleep
         printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start, philo->id);
         usleep(philo->info->time_to_sleep * 1000);
 
-        // Think
         printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
+        usleep(1000);
     }
 
     return NULL;
@@ -214,23 +205,20 @@ void *monitor_thread(void *arg)
     return NULL;
 }
 
-
 int main(int argc, char **argv)
 {
-    sem_t           **forks;
-    t_philo         *philos;
-    int             i;
+    sem_t **forks;
+    t_philo *philos;
+    int i;
     char *tmp;
-    char            *sem_name;
-    t_info          infos;
-    pid_t           monitor_fork;
+    char *sem_name;
+    t_info infos;
+    int status;
 
     i = 0;
     ft_bzero(&infos, sizeof(t_info));
     parcing(argc, argv, &infos);
 
-    // Initialize stop flag and mutex
-    // infos.stop = 0;
     infos.stop_mutex = sem_open("/stop_mutex", O_CREAT | O_EXCL, 0644, 0);
 
     forks = malloc(sizeof(sem_t *) * infos.philo);
@@ -246,8 +234,8 @@ int main(int argc, char **argv)
     while (i < infos.philo)
     {
         tmp = ft_itoa(i);
-        sem_name = ft_strjoin("/fork_",tmp);
-        free (tmp);
+        sem_name = ft_strjoin("/fork_", tmp);
+        free(tmp);
         tmp = NULL;
         forks[i] = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 1);
         i++;
@@ -258,24 +246,13 @@ int main(int argc, char **argv)
     {
         philos[i].id = i + 1;
         philos[i].meals_eaten = 0;
-        philos[i].last_meal_time = timestamp_ms();// Set start time
+        philos[i].last_meal_time = timestamp_ms(); // Set start time
         philos[i].left_fork = forks[i];
         philos[i].right_fork = forks[(i + 1) % infos.philo];
         philos[i].info = &infos;
         i++;
     }
 
-    monitor_fork = fork();
-    if (monitor_fork < 0)
-    {
-        perror("Failed to create thread");
-        return 1;
-    }
-    if (monitor_fork == 0)
-    {
-        monitor(philos);
-        exit (0);
-    }
     i = 0;
     infos.start = timestamp_ms();
     sem_wait(infos.stop_mutex);
@@ -292,30 +269,30 @@ int main(int argc, char **argv)
         {
             philo_routine(&philos[i]);
             exit(0);
-
         }
         else
             i++;
     }
-
-    // Clean up
-    i = 0;
-    while (i < infos.philo)
+    waitpid(-1, &status, 0);
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
     {
-        waitpid(philos[i].thread, NULL, 0);
-        i++;
+        i = 0;
+        while (i < infos.philo)
+            kill(philos[i++].thread, SIGKILL);
+        i = 0;
+        while (i < infos.philo)
+            waitpid(philos[i++].thread, NULL, 0);
     }
-    waitpid(monitor_fork, NULL, 0);
     i = 0;
     while (i < infos.philo)
     {
         sem_close(forks[i]);
         tmp = ft_itoa(i);
-        sem_name = ft_strjoin("/fork_",tmp);
-        free (tmp);
+        sem_name = ft_strjoin("/fork_", tmp);
+        free(tmp);
         tmp = NULL;
         sem_unlink(sem_name);
-        free (sem_name);
+        free(sem_name);
         sem_name = NULL;
         i++;
     }
@@ -327,11 +304,6 @@ int main(int argc, char **argv)
     free(forks);
     return 0;
 }
-
-
-
-
-
 
 // int before = read_balance();
 // printf("Before: %d\n", before);
