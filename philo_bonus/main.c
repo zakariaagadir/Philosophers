@@ -80,43 +80,54 @@ void *routine_thread(void *arg)
 
     while (1)
     {
+        // Fork acquisition pattern to avoid deadlocks
         if (philo->id % 2 == 0)
         {
+            usleep(1000);
             sem_wait(philo->right_fork);
             sem_wait(philo->left_fork);
         }
         else
         {
-            usleep(1000);
             sem_wait(philo->left_fork);
             sem_wait(philo->right_fork);
         }
+
+        // Protect shared data and update timestamp before eating
         sem_wait(philo->info->stop_mutex);
-        printf("%lld %d has taken a fork\n", timestamp_ms() - philo->info->start, philo->id);
-        printf("%lld %d is eating\n", philo->last_meal_time - philo->info->start, philo->id);
+        long long now = timestamp_ms();
+        philo->last_meal_time = now;
+        printf("%lld %d has taken a fork\n", now - philo->info->start, philo->id);
+        printf("%lld %d is eating\n", now - philo->info->start, philo->id);
         sem_post(philo->info->stop_mutex);
-        usleep(philo->info->time_to_eat * 1000);
-        philo->last_meal_time = timestamp_ms();
+
+        usleep(philo->info->time_to_eat * 1000); // simulate eating
+
+        // Update meals eaten
+
+        // Release forks
+        sem_post(philo->left_fork);
+        sem_post(philo->right_fork);
         sem_wait(philo->info->stop_mutex);
         philo->meals_eaten++;
         sem_post(philo->info->stop_mutex);
-        sem_post(philo->left_fork);
-        sem_post(philo->right_fork);
-
+        // Sleeping
         sem_wait(philo->info->stop_mutex);
         printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start, philo->id);
         sem_post(philo->info->stop_mutex);
         usleep(philo->info->time_to_sleep * 1000);
 
+        // Thinking
         sem_wait(philo->info->stop_mutex);
         printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start, philo->id);
         sem_post(philo->info->stop_mutex);
 
-        usleep(1000);
+        usleep(1000); // small pause to reduce CPU usage
     }
 
     return NULL;
 }
+
 
 void *monitor_thread(void *arg)
 {
@@ -134,10 +145,11 @@ void *monitor_thread(void *arg)
         }
         if (philo->meals_eaten == philo->info->number_of_eat)
         {
-            exit(1);
             sem_post(philo->info->stop_mutex);
+            exit(0);
         }
         sem_post(philo->info->stop_mutex);
+        usleep(1000);
     }
 
     return NULL;
@@ -152,8 +164,11 @@ int main(int argc, char **argv)
     char *sem_name;
     t_info infos;
     int status;
+    int finished_meals;
+    pid_t    pid;
 
     i = 0;
+    finished_meals = 0;
     ft_bzero(&infos, sizeof(t_info));
     parcing(argc, argv, &infos);
 
@@ -211,15 +226,33 @@ int main(int argc, char **argv)
         else
             i++;
     }
-    waitpid(-1, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+    i = 0;
+
+    while (i < infos.philo)
     {
-        i = 0;
-        while (i < infos.philo)
-            kill(philos[i++].thread, SIGKILL);
-        i = 0;
-        while (i < infos.philo)
-            waitpid(philos[i++].thread, NULL, 0);
+        pid = waitpid(-1, &status, 0);
+        if (pid == -1)
+            break;
+
+        if (WIFEXITED(status))
+        {
+            if (WEXITSTATUS(status) == 1)
+            {
+                int j = 0;
+                while (j < infos.philo)
+                    kill(philos[j++].thread, SIGKILL);
+
+                break;
+            }
+            else if (WEXITSTATUS(status) == 0)
+            {
+                finished_meals++;
+                if (finished_meals == infos.philo)
+                    break;
+            }
+        }
+
+        i++;
     }
     sem_post(infos.stop_mutex);
     i = 0;
