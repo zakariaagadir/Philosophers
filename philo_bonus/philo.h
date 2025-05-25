@@ -22,6 +22,7 @@ void ft_bzero(void *s, size_t n);
 typedef struct s_info
 {
     int philo;
+    int bonus;
     int time_to_die;
     long long start;
     int time_to_eat;
