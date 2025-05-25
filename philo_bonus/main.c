@@ -140,16 +140,12 @@ void *monitor_thread(void *arg)
         if (now - philo->last_meal_time > philo->info->time_to_die)
         {
             printf("%lld %d died\n", now - philo->info->start, philo->id);
-            // free(philo);
-            // philo = NULL;
-            exit(1); // Exit this philosopher process
+            exit(1);
             sem_post(philo->info->stop_mutex);
         }
         if (philo->meals_eaten == philo->info->number_of_eat)
         {
             sem_post(philo->info->stop_mutex);
-            // free(philo);
-            // philo = NULL;
             exit(0);
         }
         sem_post(philo->info->stop_mutex);
