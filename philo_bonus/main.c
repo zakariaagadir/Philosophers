@@ -5,6 +5,8 @@ void ft_is_number(char *str)
 {
     int i;
     i = 0;
+    if (str && str[i] == '+')
+        i++;
     while (str[i])
     {
         if (!ft_isdigit(str[i]))
@@ -44,7 +46,6 @@ void parcing(int argc, char **argv, t_info *infos)
     infos->time_to_die = data[1];
     infos->time_to_eat = data[2];
     infos->time_to_sleep = data[3];
-
     if (infos->philo <= 1)
     {
         if (infos->philo == 1)
@@ -59,17 +60,13 @@ void *philo_routine(void *arg)
     t_philo *philo = (t_philo *)arg;
     pthread_t monitor;
 
-    // Start monitor thread for this philosopher
     if (pthread_create(&monitor, NULL, monitor_thread, philo) != 0)
     {
         perror("Failed to create monitor thread");
         exit(1);
     }
 
-    // Run the main philosopher routine
     routine_thread(philo);
-
-    // Wait for monitor to finish before exiting
     pthread_join(monitor, NULL);
     return NULL;
 }
@@ -80,7 +77,14 @@ void *routine_thread(void *arg)
 
     while (1)
     {
-        // Fork acquisition pattern to avoid deadlocks
+        sem_wait(philo->info->stop_mutex);
+        if (philo->meals_eaten == philo->info->number_of_eat)
+        {
+            sem_post(philo->info->stop_mutex);
+            exit (0);
+        }
+        sem_post(philo->info->stop_mutex);
+
         if (philo->id % 2 == 0)
         {
             usleep(1000);
@@ -93,7 +97,6 @@ void *routine_thread(void *arg)
             sem_wait(philo->right_fork);
         }
 
-        // Protect shared data and update timestamp before eating
         sem_wait(philo->info->stop_mutex);
         long long now = timestamp_ms();
         philo->last_meal_time = now;
@@ -101,11 +104,7 @@ void *routine_thread(void *arg)
         printf("%lld %d is eating\n", now - philo->info->start, philo->id);
         sem_post(philo->info->stop_mutex);
 
-        usleep(philo->info->time_to_eat * 1000); // simulate eating
-
-        // Update meals eaten
-
-        // Release forks
+        usleep(philo->info->time_to_eat * 1000);
         sem_post(philo->left_fork);
         sem_post(philo->right_fork);
         sem_wait(philo->info->stop_mutex);
@@ -123,6 +122,13 @@ void *routine_thread(void *arg)
         sem_post(philo->info->stop_mutex);
 
         usleep(1000); // small pause to reduce CPU usage
+        sem_wait(philo->info->stop_mutex);
+        if (philo->meals_eaten == philo->info->number_of_eat)
+        {
+            sem_post(philo->info->stop_mutex);
+            exit (0);
+        }
+        sem_post(philo->info->stop_mutex);
     }
 
     return NULL;

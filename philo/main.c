@@ -1,18 +1,20 @@
 #include "philo.h"
 
-void      ft_is_number(char *str)
+void ft_is_number(char *str)
 {
-  int i;
-  i = 0;
-  while(str[i])
-  {
-    if (!ft_isdigit(str[i]))
+    int i;
+    i = 0;
+    if (str && str[i] == '+')
+        i++;
+    while (str[i])
     {
-      write(2, "enter numbers\n", 15);
-      exit (1);
+        if (!ft_isdigit(str[i]))
+        {
+            write(2, "enter numbers\n", 15);
+            exit(1);
+        }
+        i++;
     }
-    i++;
-  }
 }
 
 long long timestamp_ms(void)
