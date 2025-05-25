@@ -192,6 +192,8 @@ int main(int argc, char **argv)
         tmp = NULL;
         sem_unlink(sem_name);
         forks[i] = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 1);
+        free (sem_name);
+        sem_name = NULL;
         i++;
     }
 
@@ -271,7 +273,9 @@ int main(int argc, char **argv)
     sem_close(infos.stop_mutex);
     sem_unlink("/stop_sem");
     free(philos);
+    philos = NULL;
     free(forks);
+    forks = NULL;
     return 0;
 }
 

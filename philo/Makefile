@@ -1,6 +1,6 @@
 NAME = philo
 CC = cc
-FLAGS = -Wall -Wextra -Werror -fsanitize=thread
+FLAGS = -Wall -Wextra -Werror -g3 -fsanitize=thread
 
 SRC = ft_atoi.c main.c
 OBJ = ${SRC:.c=.o}
