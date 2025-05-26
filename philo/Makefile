@@ -2,7 +2,7 @@ NAME = philo
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3 -fsanitize=thread
 
-SRC = ft_atoi.c main.c
+SRC = ft_atoi.c main.c philos.c routing.c check.c
 OBJ = ${SRC:.c=.o}
 
 all: ${NAME}

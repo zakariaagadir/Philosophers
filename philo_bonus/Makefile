@@ -2,7 +2,8 @@ NAME = philo
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3 -fsanitize=thread
 
-SRC = ft_atoi.c main.c ft_itoa.c ft_strjoin.c ft_strlen.c
+SRC = ft_atoi.c main.c ft_itoa.c ft_strjoin.c\
+ ft_strlen.c children.c routing.c
 OBJ = ${SRC:.c=.o}
 
 all: ${NAME}

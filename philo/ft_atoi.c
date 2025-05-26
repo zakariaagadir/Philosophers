@@ -6,19 +6,19 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/15 14:33:49 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/26 02:57:28 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void    error_atoi()
+void	error_atoi(void)
 {
-    write(2, "enter nuber between max int an min int \n", 41);
-    exit (1);
+	write(2, "enter nuber between max int an min int \n", 41);
+	exit(1);
 }
 
-int ft_isdigit(int c)
+int	ft_isdigit(int c)
 {
 	return (c >= '0' && c <= '9');
 }
@@ -52,9 +52,10 @@ int	ft_atoi(const char *str)
 	}
 	while (*str >= '0' && *str <= '9')
 	{
-        result = result * 10 + (*str - '0');
-        if((result > 2147483647 && sign == 1) || (result > 2147483648 && sign == -1))
-            error_atoi();
+		result = result * 10 + (*str - '0');
+		if ((result > 2147483647 && sign == 1) || (result > 2147483648
+				&& sign == -1))
+			error_atoi();
 		str++;
 	}
 	return (result * sign);
