@@ -1,9 +1,10 @@
-NAME = philo
+NAME = philo_bonus
 CC = cc
-FLAGS = -Wall -Wextra -Werror -g3 -fsanitize=thread
+FLAGS = -Wall -Wextra -Werror #-g3 -fsanitize=thread
 
-SRC = ft_atoi.c main.c ft_itoa.c ft_strjoin.c\
- ft_strlen.c children.c routing.c
+SRC = children_bonus.c ft_atoi_bonus.c ft_itoa_bonus.c\
+ ft_strjoin_bonus.c ft_strlen_bonus.c main_bonus.c\
+ routing_bonus.c routing2_bonus.c
 OBJ = ${SRC:.c=.o}
 
 all: ${NAME}

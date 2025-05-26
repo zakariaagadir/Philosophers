@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   children.c                                         :+:      :+:    :+:   */
+/*   children_bonus.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 02:57:59 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/26 03:30:32 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 int	create_children(t_philo *philos, t_info *infos)
 {
@@ -37,14 +37,13 @@ int	create_children(t_philo *philos, t_info *infos)
 	return (0);
 }
 
-void	waite_for_children(t_philo *philos, t_info *infos, int i,
-		int finished_meals)
+void	waite_for_children(t_philo *philos, t_info *infos, int i, int f)
 {
 	int		status;
 	pid_t	pid;
 	int		j;
 
-	while (i < (*infos).philo)
+	while (i++ < (*infos).philo)
 	{
 		pid = waitpid(-1, &status, 0);
 		if (pid == -1)
@@ -60,10 +59,9 @@ void	waite_for_children(t_philo *philos, t_info *infos, int i,
 			}
 			else if (WEXITSTATUS(status) == 0)
 			{
-				if (++finished_meals == (*infos).philo)
+				if (++f == (*infos).philo)
 					break ;
 			}
 		}
-		i++;
 	}
 }

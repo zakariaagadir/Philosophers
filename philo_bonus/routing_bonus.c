@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   routing.c                                          :+:      :+:    :+:   */
+/*   routing_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 02:58:21 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/26 03:17:50 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include "philo.h"
+#include "philo_bonus.h"
 
 void	*routine_thread(void *arg)
 {
@@ -20,8 +19,7 @@ void	*routine_thread(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		waiting(philo);
-		eating(philo);
+		eating_waiting(philo);
 		sem_wait(philo->info->stop_mutex);
 		printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start,
 			philo->id);

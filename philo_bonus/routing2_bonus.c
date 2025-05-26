@@ -1,25 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlen.c                                        :+:      :+:    :+:   */
+/*   routing2_bonus.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/24 06:17:27 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/22 15:21:32 by zmounji          ###   ########.fr       */
+/*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
+/*   Updated: 2025/05/26 03:18:16 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-size_t	ft_strlen(const char *s)
+void	eating_waiting(t_philo *philo)
 {
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-	{
-		i += 1;
-	}
-	return (i);
+	waiting(philo);
+	eating(philo);
 }

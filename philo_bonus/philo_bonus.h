@@ -1,5 +1,17 @@
-#ifndef PHILO_H
-# define PHILO_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
+/*   Updated: 2025/05/26 03:28:24 by zmounji          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PHILO_BONUS_H
+# define PHILO_BONUS_H
 
 # include <fcntl.h>
 # include <pthread.h>
@@ -11,6 +23,7 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <unistd.h>
+
 int				ft_atoi(const char *str);
 void			error_atoi(void);
 int				ft_isdigit(int c);
@@ -49,7 +62,7 @@ void			*routine_thread(void *arg);
 void			*philo_routine(void *arg);
 void			*monitor(void *arg);
 void			waite_for_children(t_philo *philos, t_info *infos, int i,
-					int finished_meals);
+					int f);
 int				create_children(t_philo *philos, t_info *infos);
 void			initialise_semaphore(t_philo *philos, sem_t **forks,
 					t_info *infos);
@@ -57,5 +70,6 @@ void			eating(t_philo *philo);
 void			waiting(t_philo *philo);
 void			parcing(int argc, char **argv, t_info *infos);
 long long		timestamp_ms(void);
+void			eating_waiting(t_philo *philo);
 
 #endif

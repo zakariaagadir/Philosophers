@@ -6,10 +6,9 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 02:57:51 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/26 03:46:27 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "philo.h"
 
@@ -99,8 +98,9 @@ void	check_prioritie(t_philo *philo)
 
 void	*philo_routine(void *arg)
 {
-	t_philo *philo = (t_philo *)arg;
+	t_philo	*philo;
 
+	philo = (t_philo *)arg;
 	while (!philo->info->stop)
 	{
 		pthread_mutex_lock(&philo->info->stop_mutex);
@@ -111,7 +111,6 @@ void	*philo_routine(void *arg)
 		}
 		pthread_mutex_unlock(&philo->info->stop_mutex);
 		check_prioritie(philo);
-
 		if (eating(philo) == 1)
 			break ;
 		if (sleeping(philo) == 1)
