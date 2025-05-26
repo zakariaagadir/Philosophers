@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 03:28:24 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/26 21:56:12 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ typedef struct s_philo
 	int			id;
 	int			meals_eaten;
 	int			number_of_eate;
+	pthread_t	monitor;
 	long long	last_meal_time;
 	pid_t		thread;
 	sem_t		*left_fork;

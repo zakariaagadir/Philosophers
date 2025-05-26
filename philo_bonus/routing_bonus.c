@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 03:17:50 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 00:17:53 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void	*philo_routine(void *arg)
 		exit(1);
 	}
 	routine_thread(philo);
-	pthread_join(monitor, NULL);
+	pthread_join(philo->monitor, NULL);
 	return (NULL);
 }
 
@@ -111,7 +111,6 @@ void	*monitor_thread(void *arg)
 		{
 			printf("%lld %d died\n", now - philo->info->start, philo->id);
 			exit(1);
-			sem_post(philo->info->stop_mutex);
 		}
 		if (philo->meals_eaten == philo->info->number_of_eat)
 		{
