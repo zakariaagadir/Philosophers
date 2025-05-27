@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 03:46:27 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:53:40 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	eating(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->info->stop_mutex);
-	if (philo->info->stop)
+	if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)
 	{
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
@@ -28,7 +28,7 @@ int	eating(t_philo *philo)
 	printf("%lld %d is eating\n", timestamp_ms() - philo->info->start,
 		philo->id);
 	pthread_mutex_unlock(&philo->info->stop_mutex);
-	usleep(philo->info->time_to_eat * 1000);
+	ft_usleep(philo->info->time_to_eat);
 	pthread_mutex_lock(&philo->info->stop_mutex);
 	philo->meals_eaten++;
 	pthread_mutex_unlock(&philo->info->stop_mutex);
@@ -55,7 +55,7 @@ int	sleeping(t_philo *philo)
 	printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start,
 		philo->id);
 	pthread_mutex_unlock(&philo->info->stop_mutex);
-	usleep(philo->info->time_to_sleep * 1000);
+	ft_usleep(philo->info->time_to_sleep);
 	return (0);
 }
 
@@ -70,7 +70,7 @@ int	thinking(t_philo *philo)
 	printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start,
 		philo->id);
 	pthread_mutex_unlock(&philo->info->stop_mutex);
-	usleep(1000);
+	ft_usleep(1);
 	pthread_mutex_lock(&philo->info->stop_mutex);
 	if (philo->meals_eaten == philo->info->number_of_eat)
 	{

@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 21:56:12 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:47:06 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,6 @@ void			waiting(t_philo *philo);
 void			parcing(int argc, char **argv, t_info *infos);
 long long		timestamp_ms(void);
 void			eating_waiting(t_philo *philo);
+void			ft_usleep(long long l);
 
 #endif

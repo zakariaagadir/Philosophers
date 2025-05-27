@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 21:21:11 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:53:55 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,21 @@ void	ft_is_number(char *str)
 			exit(1);
 		}
 		i++;
+	}
+}
+
+void	ft_usleep(long long l)
+{
+	long long	time1;
+	long long	time2;
+
+	time1 = timestamp_ms();
+	while (1)
+	{
+		usleep(1);
+		time2 = timestamp_ms();
+		if ((time2 - time1) >= l)
+			break ;
 	}
 }
 

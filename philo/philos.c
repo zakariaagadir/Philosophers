@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 02:57:43 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:43:10 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,14 +68,14 @@ int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread)
 		if (pthread_create(&philos[i].thread, NULL, &philo_routine,
 				&philos[i]) != 0)
 		{
-			perror("Failed to create thread");
+			write(2, "Failed to create thread\n", 25);
 			return (1);
 		}
 		i++;
 	}
 	if (pthread_create(monitor_thread, NULL, &monitor, philos) != 0)
 	{
-		perror("Failed to create monitor thread");
+		write(2, "Failed to create monitor thread", 32);
 		return (1);
 	}
 	return (0);

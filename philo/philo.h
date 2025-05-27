@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 03:43:54 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:32:26 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,5 +65,6 @@ long long			timestamp_ms(void);
 int					check_died(t_philo *philos, int i);
 int					check_stop(t_philo *philos);
 void				parcing(int argc, char **argv, t_info *infos);
+void				ft_usleep(long long l);
 
 #endif

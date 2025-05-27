@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/27 00:17:53 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:48:09 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ void	*routine_thread(void *arg)
 		printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start,
 			philo->id);
 		sem_post(philo->info->stop_mutex);
-		usleep(philo->info->time_to_sleep * 1000);
+		ft_usleep(philo->info->time_to_sleep);
 		sem_wait(philo->info->stop_mutex);
 		printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start,
 			philo->id);
 		sem_post(philo->info->stop_mutex);
-		usleep(1000);
+		ft_usleep(1);
 		sem_wait(philo->info->stop_mutex);
 		if (philo->meals_eaten == philo->info->number_of_eat)
 		{
@@ -51,7 +51,7 @@ void	eating(t_philo *philo)
 	printf("%lld %d has taken a fork\n", now - philo->info->start, philo->id);
 	printf("%lld %d is eating\n", now - philo->info->start, philo->id);
 	sem_post(philo->info->stop_mutex);
-	usleep(philo->info->time_to_eat * 1000);
+	ft_usleep(philo->info->time_to_eat);
 	sem_post(philo->left_fork);
 	sem_post(philo->right_fork);
 	sem_wait(philo->info->stop_mutex);
@@ -70,7 +70,7 @@ void	waiting(t_philo *philo)
 	sem_post(philo->info->stop_mutex);
 	if (philo->id % 2 == 0)
 	{
-		usleep(1000);
+		ft_usleep(1);
 		sem_wait(philo->right_fork);
 		sem_wait(philo->left_fork);
 	}
@@ -89,7 +89,7 @@ void	*philo_routine(void *arg)
 	philo = (t_philo *)arg;
 	if (pthread_create(&monitor, NULL, monitor_thread, philo) != 0)
 	{
-		perror("Failed to create monitor thread");
+		write(2, "Failed to create monitor thread", 32);
 		exit(1);
 	}
 	routine_thread(philo);
@@ -118,7 +118,7 @@ void	*monitor_thread(void *arg)
 			exit(0);
 		}
 		sem_post(philo->info->stop_mutex);
-		usleep(1000);
+		ft_usleep(1);
 	}
 	return (NULL);
 }

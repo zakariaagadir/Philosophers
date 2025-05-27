@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/26 03:30:32 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/27 03:10:36 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	create_children(t_philo *philos, t_info *infos)
 		philos[i].thread = fork();
 		if (philos[i].thread < 0)
 		{
-			perror("Failed to create thread");
+			write(2, "Failed to create thread", 24);
 			return (1);
 		}
 		if (philos[i].thread == 0)
