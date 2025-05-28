@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/27 03:53:55 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/28 19:00:56 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	parcing(int argc, char **argv, t_info *infos)
 	infos->time_to_die = data[1];
 	infos->time_to_eat = data[2];
 	infos->time_to_sleep = data[3];
-	if (infos->philo <= 1 || infos->philo > 200)
+	if (infos->philo <= 1)
 	{
 		if (infos->philo == 1)
 			printf("%lld %d died\n", 0LL, 1);
