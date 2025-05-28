@@ -1,6 +1,6 @@
 NAME = philo_bonus
 CC = cc
-FLAGS = -Wall -Wextra -Werror -fsanitize=address -g3
+FLAGS = -Wall -Wextra -Werror
 
 SRC = children_bonus.c ft_atoi_bonus.c ft_itoa_bonus.c\
  ft_strjoin_bonus.c ft_strlen_bonus.c main_bonus.c\
