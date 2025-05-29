@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 13:10:34 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 13:21:51 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,36 +19,19 @@ void	*routine_thread(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		sem_wait(philo->info->stop_mutex);
-		if (philo->info->die == 1)
-		{
-			sem_post(philo->info->stop_mutex);
-			return (NULL);
-		}
-		if (philo->meals_eaten == philo->info->number_of_eat)
-		{
-			sem_post(philo->info->stop_mutex);
-			return (NULL);
-		}
+		sem_wait(philo->info->stop_mutex || philo->meals_eaten == philo->info->number_of_eat);
 		sem_post(philo->info->stop_mutex);
 		eating_waiting(philo);
 		sem_wait(philo->info->stop_mutex);
 		if (philo->info->die == 1)
-		{
-			sem_post(philo->info->stop_mutex);
-			return (NULL);
-		}
+			return(sstop(philo));
 		printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start,
 		philo->id);
 		sem_post(philo->info->stop_mutex);
 		ft_usleep(philo->info->time_to_sleep);
-		
 		sem_wait(philo->info->stop_mutex);
 		if (philo->info->die == 1)
-		{
-			sem_post(philo->info->stop_mutex);
-			return (NULL);
-		}
+			return (sstop(philo));
 		printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start,
 		philo->id);
 		sem_post(philo->info->stop_mutex);
