@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/27 03:32:26 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 08:44:13 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void				*monitor(void *arg);
 void				initialise(t_philo *philos, t_info *infos,
 						pthread_mutex_t *forks);
 int					create_threads(t_philo *philos, t_info *infos,
-						pthread_t *monitor_thread);
+						pthread_t *monitor_thread, pthread_mutex_t	*forks);
 void				join_clear(pthread_t monitor_thread, t_info infos,
 						pthread_mutex_t *forks, t_philo *philos);
 void				join_clear(pthread_t monitor_thread, t_info infos,

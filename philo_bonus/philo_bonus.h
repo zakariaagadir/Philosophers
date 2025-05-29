@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/28 18:46:32 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 09:34:29 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef struct s_info
 	int			philo;
 	int			failed;
 	int			bonus;
+	int			die;
 	int			time_to_die;
 	long long	start;
 	int			time_to_eat;

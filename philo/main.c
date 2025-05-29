@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/28 19:00:56 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 08:53:37 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,13 @@ long long	timestamp_ms(void)
 	return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000));
 }
 
+void	ft_printf(t_info *infos)
+{
+	printf("%lld %d died\n", 0LL, 1);
+	ft_usleep(infos->time_to_die);
+	exit(0);
+}
+
 void	parcing(int argc, char **argv, t_info *infos)
 {
 	int	i;
@@ -74,10 +81,10 @@ void	parcing(int argc, char **argv, t_info *infos)
 	infos->time_to_die = data[1];
 	infos->time_to_eat = data[2];
 	infos->time_to_sleep = data[3];
-	if (infos->philo <= 1)
+	if (infos->philo < 1 || infos->philo > 200)
 	{
 		if (infos->philo == 1)
-			printf("%lld %d died\n", 0LL, 1);
+			ft_printf(infos);
 		exit(1);
 	}
 }
@@ -104,7 +111,7 @@ int	main(int argc, char **argv)
 	}
 	initialise(philos, &infos, forks);
 	infos.start = timestamp_ms();
-	if (create_threads(philos, &infos, &monitor_thread) == 1)
+	if (create_threads(philos, &infos, &monitor_thread, forks) == 1)
 		return (1);
 	join_clear(monitor_thread, infos, forks, philos);
 	return (0);

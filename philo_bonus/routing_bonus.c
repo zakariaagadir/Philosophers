@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/27 03:48:09 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 09:37:08 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	*routine_thread(void *arg)
 		if (philo->meals_eaten == philo->info->number_of_eat)
 		{
 			sem_post(philo->info->stop_mutex);
-			exit(0);
+			returm (NULL);
 		}
 		sem_post(philo->info->stop_mutex);
 	}
@@ -94,6 +94,10 @@ void	*philo_routine(void *arg)
 	}
 	routine_thread(philo);
 	pthread_join(philo->monitor, NULL);
+	if(philo->info->die == 1)
+		exit(1);
+	else
+		exit(0);
 	return (NULL);
 }
 
@@ -110,12 +114,15 @@ void	*monitor_thread(void *arg)
 		if (now - philo->last_meal_time > philo->info->time_to_die)
 		{
 			printf("%lld %d died\n", now - philo->info->start, philo->id);
-			exit(1);
+			if (philo->info->philo == 1)
+				sem_post(philo->right_fork);
+			philo->info->die = 1;
+			return (NULL);
 		}
 		if (philo->meals_eaten == philo->info->number_of_eat)
 		{
 			sem_post(philo->info->stop_mutex);
-			exit(0);
+			return(NULL);
 		}
 		sem_post(philo->info->stop_mutex);
 		ft_usleep(1);

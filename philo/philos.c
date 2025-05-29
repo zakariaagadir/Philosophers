@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/28 18:56:45 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 08:40:15 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	initialise(t_philo *philos, t_info *infos, pthread_mutex_t *forks)
 	}
 }
 
-int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread)
+int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread, pthread_mutex_t	*forks)
 {
 	int	i;
 
@@ -69,6 +69,7 @@ int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread)
 				&philos[i]) != 0)
 		{
 			write(2, "Failed to create thread\n", 25);
+			join_clear(*monitor_thread, *infos, forks, philos);
 			return (1);
 		}
 		i++;
@@ -76,6 +77,7 @@ int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread)
 	if (pthread_create(monitor_thread, NULL, &monitor, philos) != 0)
 	{
 		write(2, "Failed to create monitor thread", 32);
+		join_clear(*monitor_thread, *infos, forks, philos);
 		return (1);
 	}
 	return (0);
