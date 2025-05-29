@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 08:44:13 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 14:04:57 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void				ft_bzero(void *s, size_t n);
 int					eating(t_philo *philo);
 int					sleeping(t_philo *philo);
 int					thinking(t_philo *philo);
-void				check_prioritie(t_philo *philo);
+int					check_prioritie(t_philo *philo);
 void				*philo_routine(void *arg);
 void				*monitor(void *arg);
 void				initialise(t_philo *philos, t_info *infos,
@@ -66,5 +66,6 @@ int					check_died(t_philo *philos, int i);
 int					check_stop(t_philo *philos);
 void				parcing(int argc, char **argv, t_info *infos);
 void				ft_usleep(long long l);
+void				ft_printf(t_info *infos);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 08:40:15 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 13:42:25 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ void	initialise(t_philo *philos, t_info *infos, pthread_mutex_t *forks)
 	}
 }
 
-int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread, pthread_mutex_t	*forks)
+int	create_threads(t_philo *philos, t_info *infos, pthread_t *monitor_thread,
+		pthread_mutex_t *forks)
 {
 	int	i;
 

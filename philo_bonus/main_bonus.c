@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 11:58:57 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 13:33:29 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,6 @@ long long	timestamp_ms(void)
 
 	gettimeofday(&tv, NULL);
 	return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000));
-}
-
-void	ft_printf(t_info *infos)
-{
-	printf("%lld %d died\n", 0LL, 1);
-	ft_usleep(infos->time_to_die);
-	exit(0);
 }
 
 void	parcing(int argc, char **argv, t_info *infos)

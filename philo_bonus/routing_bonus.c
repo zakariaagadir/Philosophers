@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 13:21:51 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 13:39:50 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,23 @@ void	*routine_thread(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		sem_wait(philo->info->stop_mutex || philo->meals_eaten == philo->info->number_of_eat);
+		sem_wait(philo->info->stop_mutex);
+		if (philo->info->die == 1
+			|| philo->meals_eaten == philo->info->number_of_eat)
+			return (sstop(philo));
 		sem_post(philo->info->stop_mutex);
 		eating_waiting(philo);
 		sem_wait(philo->info->stop_mutex);
 		if (philo->info->die == 1)
-			return(sstop(philo));
+			return (sstop(philo));
 		printf("%lld %d is sleeping\n", timestamp_ms() - philo->info->start,
-		philo->id);
+			philo->id);
 		sem_post(philo->info->stop_mutex);
 		ft_usleep(philo->info->time_to_sleep);
 		sem_wait(philo->info->stop_mutex);
 		if (philo->info->die == 1)
 			return (sstop(philo));
-		printf("%lld %d is thinking\n", timestamp_ms() - philo->info->start,
-		philo->id);
-		sem_post(philo->info->stop_mutex);
-		ft_usleep(1);
+		sleep_post(philo);
 	}
 	return (NULL);
 }
@@ -107,24 +107,6 @@ void	*philo_routine(void *arg)
 	return (NULL);
 }
 
-void	*diiie(t_philo		*philo, long long	now)
-{
-	printf("%lld %d died\n", now - philo->info->start, philo->id);
-	if (philo->info->philo == 1)
-		sem_post(philo->right_fork);
-	philo->info->stop_m->__align = 0;
-	philo->info->die = 1;
-	sem_post(philo->info->stop_mutex);
-	return (NULL);
-}
-
-void	*sstop(t_philo		*philo)
-{
-	sem_post(philo->info->stop_mutex);
-	return (NULL);
-}
-
-
 void	*monitor_thread(void *arg)
 {
 	t_philo		*philo;
@@ -144,9 +126,9 @@ void	*monitor_thread(void *arg)
 		sem_wait(philo->info->stop_mutex);
 		now = timestamp_ms();
 		if (now - philo->last_meal_time > philo->info->time_to_die)
-			return(diiie(philo, now));
+			return (diiie(philo, now));
 		if (philo->meals_eaten == philo->info->number_of_eat)
-			return(sstop(philo));
+			return (sstop(philo));
 		sem_post(philo->info->stop_mutex);
 		ft_usleep(1);
 	}

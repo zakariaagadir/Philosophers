@@ -21,7 +21,7 @@ void	eating_waiting(t_philo *philo)
 		sem_post(philo->right_fork);
 		sem_post(philo->left_fork);
 		sem_post(philo->info->stop_mutex);
-		return;
+		return ;
 	}
 	sem_post(philo->info->stop_mutex);
 	eating(philo);

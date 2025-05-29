@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 09:08:05 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 15:15:56 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ int	check_died(t_philo *philos, int i)
 		info->stop = 1;
 		printf("%lld %d died\n", timestamp_ms() - philos->info->start,
 			philos[i].id);
-		if (philos->info->philo == 1)
-			pthread_mutex_unlock(philos->right_fork);
 		pthread_mutex_unlock(&info->stop_mutex);
 		return (1);
 	}
@@ -55,4 +53,11 @@ int	check_stop(t_philo *philos)
 		i++;
 	}
 	return (0);
+}
+
+void	ft_printf(t_info *infos)
+{
+	printf("%lld %d died\n", 0LL, 1);
+	ft_usleep(infos->time_to_die);
+	exit(0);
 }

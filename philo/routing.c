@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 09:02:04 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 15:22:42 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@ int	eating(t_philo *philo)
 	pthread_mutex_lock(&philo->info->stop_mutex);
 	if (philo->info->stop || philo->meals_eaten == philo->info->number_of_eat)
 	{
-		pthread_mutex_unlock(philo->left_fork);
+		if (philo->info->philo != 1)
+			pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
 		pthread_mutex_unlock(&philo->info->stop_mutex);
 		return (1);
@@ -81,7 +82,7 @@ int	thinking(t_philo *philo)
 	return (0);
 }
 
-void	check_prioritie(t_philo *philo)
+int	check_prioritie(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
 	{
@@ -92,8 +93,14 @@ void	check_prioritie(t_philo *philo)
 	else
 	{
 		pthread_mutex_lock(philo->left_fork);
+		if (philo->info->philo == 1)
+		{
+			pthread_mutex_unlock(philo->left_fork);
+			return (1);
+		}
 		pthread_mutex_lock(philo->right_fork);
 	}
+	return (0);
 }
 
 void	*philo_routine(void *arg)
@@ -104,13 +111,17 @@ void	*philo_routine(void *arg)
 	while (!philo->info->stop)
 	{
 		pthread_mutex_lock(&philo->info->stop_mutex);
-		if (philo->info->stop)
+		if (philo->info->stop
+			|| philo->meals_eaten == philo->info->number_of_eat)
 		{
 			pthread_mutex_unlock(&philo->info->stop_mutex);
 			break ;
 		}
 		pthread_mutex_unlock(&philo->info->stop_mutex);
-		check_prioritie(philo);
+		if (check_prioritie(philo) == 1)
+		{
+			break ;
+		}
 		if (eating(philo) == 1)
 			break ;
 		if (sleeping(philo) == 1)
