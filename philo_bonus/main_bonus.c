@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 09:11:20 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 11:58:57 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,8 @@ void	initialise_semaphore(t_philo *philos, sem_t **forks, t_info *infos)
 
 	sem_unlink("/stop_sem");
 	(*infos).stop_mutex = sem_open("/stop_sem", O_CREAT | O_EXCL, 0644, 1);
+	sem_unlink("/stop_s");
+	(*infos).stop_m = sem_open("/stop_s", O_CREAT | O_EXCL, 0644, 1);
 	sem_unlink("/fork_");
 	*forks = sem_open("/fork_", O_CREAT | O_EXCL, 0644, (*infos).philo);
 	i = 0;
@@ -116,7 +118,9 @@ int	main(int argc, char **argv)
 	sem_close(forks);
 	sem_unlink("/fork_");
 	sem_close(infos.stop_mutex);
+	sem_close(infos.stop_m);
 	sem_unlink("/stop_sem");
+	sem_unlink("/stop_s");
 	free(philos);
 	philos = NULL;
 	return (0);

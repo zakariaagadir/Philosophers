@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/29 09:34:29 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 09:52:59 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_info
 	int			time_to_sleep;
 	int			number_of_eat;
 	sem_t		*stop_mutex;
+	sem_t		*stop_m;
 }				t_info;
 
 typedef struct s_philo

@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/28 18:47:52 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 12:57:48 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int	create_children(t_philo *philos, t_info *infos)
 		if (philos[i].thread == 0)
 		{
 			philo_routine(&philos[i]);
+			free(philos);
 			exit(0);
 		}
 		else

@@ -6,7 +6,7 @@
 /*   By: zmounji <zmounji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:13:26 by zmounji           #+#    #+#             */
-/*   Updated: 2025/05/27 03:46:47 by zmounji          ###   ########.fr       */
+/*   Updated: 2025/05/29 11:45:59 by zmounji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,15 @@
 void	eating_waiting(t_philo *philo)
 {
 	waiting(philo);
+	sem_wait(philo->info->stop_mutex);
+	if (philo->info->die == 1)
+	{
+		sem_post(philo->right_fork);
+		sem_post(philo->left_fork);
+		sem_post(philo->info->stop_mutex);
+		return;
+	}
+	sem_post(philo->info->stop_mutex);
 	eating(philo);
 }
 
